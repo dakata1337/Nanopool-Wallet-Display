@@ -65,6 +65,7 @@ while True:
         count = 0
 
     # Print Info
+    toDisplay += "ETH Price: $%s \n" % (str(ethPrice['USD']))
     toDisplay += "Current stats for " + json['data']['account'] + "\n"
     toDisplay += "Balance: " + json['data']['balance'] + "ETH | " + str( round(float(json['data']['balance']) * float(ethPrice['USD']), 2) ) + "USD" + "\n"
     toDisplay += "Workers: " + "\n"
