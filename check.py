@@ -4,9 +4,32 @@ import time
 import os
 from datetime import datetime
 
-# Clear Terminal
-os.system('clear')
 
+### Functions ###
+# Define clearConsole()
+def clearConsole():
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  # If Machine is running on Windows, use cls
+        command = 'cls'
+    os.system(command)
+
+# Define getPoolData()
+def getPoolData():
+    response = requests.get('https://api.nanopool.org/v1/eth/user/' + address)
+    return response.json()
+
+# Define getETHPrice()
+def getETHPrice():
+    response = requests.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
+    return response.json()
+
+
+### Code ###
+
+# Clear console
+clearConsole()
+
+# Get Timeout
 timeout = int(input("Enter update time (in seconds): "))
 
 if(timeout == 0):
@@ -17,20 +40,17 @@ if(timeout == 0):
 address = ''
 
 # Get ETH Price
-ethResponse = requests.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
-ethPrice = ethResponse.json()
+ethPrice = getETHPrice()
 
 count = 0
 while True:
     toDisplay = "=================" + str(datetime.now()) + "=================" + "\n"
-    response = requests.get('https://api.nanopool.org/v1/eth/user/' + address)
 
     # Get Wallet JSON data
-    json = response.json()
+    json = getPoolData()
 
     # Check if everything is good
-    status = json['status']
-    if status == False:
+    if json['status'] == False:
         time.sleep(timeout / 2)
         continue
     
@@ -38,9 +58,8 @@ while True:
     if count > 10:
         # Save old ETH Price
         oldPrice = ethPrice
-        # Get new ETH Price5
-        ethResponse = requests.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
-        ethPrice = ethResponse.json()
+        # Get new ETH Price
+        ethPrice = getETHPrice()
 
         toDisplay += 'Updating ETH price: %s => %s' % (oldPrice['USD'], ethPrice['USD']) + "\n"
         count = 0
@@ -52,12 +71,12 @@ while True:
 
     # Print all workers
     for worker in json['data']['workers']:
-        toDisplay += " >" + worker['id'] + " - " + worker['h24'] + "Mh/s (24h average)" + "\n"
+        toDisplay += " > " + worker['id'] + " - " + worker['h24'] + "Mh/s (24h average) \n"
     
     toDisplay += "============================================================"
 
     # Clear Terminal
-    os.system('clear')
+    clearConsole()
 
     # Print all Text
     print(toDisplay)
